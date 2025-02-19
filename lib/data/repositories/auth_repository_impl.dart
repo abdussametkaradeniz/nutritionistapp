@@ -1,11 +1,11 @@
 import 'package:diet_app/data/datasources/auth_local_datasource.dart';
 import 'package:diet_app/data/datasources/auth_remote_datasource.dart';
+import 'package:diet_app/data/models/user_model.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/base/base_failure.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../../domain/entities/user.dart';
-import '../models/user_model.dart';
 import 'package:dio/dio.dart';
 
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
