@@ -43,14 +43,16 @@ class AuthRepositoryImpl implements AuthRepository {
     required String email,
     required String password,
     required String username,
-    String? fullName,
+    required String firstName,
+    required String lastName,
   }) async {
     try {
       final response = await _remoteDataSource.signUp(
         email: email,
         password: password,
         username: username,
-        fullName: fullName,
+        firstName: firstName,
+        lastName: lastName,
       );
 
       if (response['isError'] == false && response['result'] != null) {
@@ -156,27 +158,6 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       final sessions = await _remoteDataSource.getActiveSessions();
       return right(sessions);
-    } catch (e) {
-      return left(ServerFailure(message: e.toString()));
-    }
-  }
-
-  @override
-  Future<Either<Failure, User?>> getCurrentUser() async {
-    try {
-      final userJson = await _localDataSource.getCachedUser();
-      if (userJson == null) return right(null);
-      return right(UserModel.fromJson(userJson));
-    } catch (e) {
-      return left(ServerFailure(message: e.toString()));
-    }
-  }
-
-  @override
-  Future<Either<Failure, bool>> isSignedIn() async {
-    try {
-      final token = await _localDataSource.getToken();
-      return right(token != null);
     } catch (e) {
       return left(ServerFailure(message: e.toString()));
     }
@@ -308,30 +289,18 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, void>> verifyEmail(String token) async {
-    try {
-      await _remoteDataSource.verifyEmail(token);
-      return right(null);
-    } catch (e) {
-      return left(ServerFailure(message: e.toString()));
-    }
-  }
-
-  @override
   Future<void> clearCache() async {
     await _localDataSource.clearUser();
     await _localDataSource.clearTokens();
   }
 
   @override
-  Future<bool> isConnected() async {
+  Future<Either<Failure, void>> verifyEmail(String token) async {
     try {
-      await _remoteDataSource.ping();
-      return true;
-    } catch (_) {
-      return false;
+      await _remoteDataSource.sendEmailVerification();
+      return right(null);
+    } catch (e) {
+      return left(ServerFailure(message: e.toString()));
     }
   }
-
-  // Diğer metodların implementasyonları...
 }

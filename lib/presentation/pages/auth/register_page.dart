@@ -22,7 +22,8 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
-  final _fullNameController = TextEditingController();
+  final _firstNameController = TextEditingController();
+  final _lastNameController = TextEditingController();
   bool _isPasswordVisible = false;
   bool _isConfirmPasswordVisible = false;
 
@@ -32,7 +33,8 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
     _usernameController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
-    _fullNameController.dispose();
+    _firstNameController.dispose();
+    _lastNameController.dispose();
     super.dispose();
   }
 
@@ -42,7 +44,8 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
             email: _emailController.text.trim(),
             password: _passwordController.text,
             username: _usernameController.text.trim(),
-            fullName: _fullNameController.text.trim(),
+            firstName: _firstNameController.text.trim(),
+            lastName: _lastNameController.text.trim(),
           );
     }
   }
@@ -83,20 +86,35 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // Ad Soyad
+                  // İsim
                   CustomTextField(
-                    controller: _fullNameController,
-                    hintText: 'Ad Soyad',
+                    controller: _firstNameController,
+                    hintText: 'İsim',
                     prefixIcon: Icons.person_outline,
                     validator: (value) {
                       if (value?.isEmpty ?? true) {
-                        return 'Ad Soyad gerekli';
+                        return 'İsim gerekli';
                       }
                       return null;
                     },
                   ),
                   const SizedBox(height: 16),
 
+                  // Soyisim
+                  CustomTextField(
+                    controller: _lastNameController,
+                    hintText: 'Soyisim',
+                    prefixIcon: Icons.person_outline,
+                    validator: (value) {
+                      if (value?.isEmpty ?? true) {
+                        return 'Soyisim gerekli';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+
+                 
                   // Kullanıcı Adı
                   CustomTextField(
                     controller: _usernameController,

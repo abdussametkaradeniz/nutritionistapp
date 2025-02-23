@@ -14,7 +14,8 @@ abstract class AuthRepository extends BaseRepository {
     required String email,
     required String password,
     required String username,
-    String? fullName,
+    required String firstName,
+    required String lastName,
   });
 
   Future<Either<Failure, void>> signOut({required String sessionId});
@@ -35,7 +36,7 @@ abstract class AuthRepository extends BaseRepository {
   });
 
   // 2FA işlemleri
-  Future<Either<Failure, String>> enable2FA(); // QR code string döner
+  Future<Either<Failure, String>> enable2FA();
   Future<Either<Failure, void>> verify2FA(String code);
   Future<Either<Failure, void>> disable2FA(String code);
   Future<Either<Failure, List<String>>> generateBackupCodes();
@@ -62,8 +63,6 @@ abstract class AuthRepository extends BaseRepository {
   Future<Either<Failure, void>> deleteAvatar();
 
   // Kullanıcı durumu
-  Future<Either<Failure, bool>> isSignedIn();
-  Future<Either<Failure, User?>> getCurrentUser();
   Stream<User?> get onAuthStateChanged;
 }
 

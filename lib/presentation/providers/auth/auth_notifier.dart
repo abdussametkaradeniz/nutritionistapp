@@ -1,4 +1,6 @@
 import 'package:diet_app/core/storage/secure_storage.dart';
+import 'package:diet_app/data/datasources/auth_local_datasource.dart';
+import 'package:diet_app/data/models/user_model.dart';
 import 'package:diet_app/data/repositories/auth_repository_impl.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../domain/usecases/auth/sign_in_usecase.dart';
@@ -6,7 +8,6 @@ import '../../../domain/usecases/auth/sign_up_usecase.dart';
 import '../../../domain/usecases/auth/enable_2fa_usecase.dart';
 import '../../../domain/repositories/auth_repository.dart';
 import 'auth_state.dart';
-import '../../../core/utils/error_handler.dart';
 import '../../../domain/base/base_failure.dart';
 import 'package:dio/dio.dart';
 
@@ -17,13 +18,14 @@ final authNotifierProvider =
   final signUpUseCase = ref.watch(signUpUseCaseProvider);
   final enable2FAUseCase = ref.watch(enable2FAUseCaseProvider);
   final secureStorage = ref.watch(secureStorageProvider);
-
+  final authLocalDataSource = ref.watch(authLocalDataSourceProvider);
   return AuthNotifier(
     repository: repository,
     signInUseCase: signInUseCase,
     signUpUseCase: signUpUseCase,
     enable2FAUseCase: enable2FAUseCase,
     secureStorage: secureStorage,
+    authLocalDataSource: authLocalDataSource,
   );
 });
 
@@ -33,36 +35,35 @@ class AuthNotifier extends StateNotifier<AuthState> {
   final SignUpUseCase _signUpUseCase;
   final Enable2FAUseCase _enable2FAUseCase;
   final SecureStorage _secureStorage;
-
+  final AuthLocalDataSource _authLocalDataSource;
   AuthNotifier({
     required AuthRepository repository,
     required SignInUseCase signInUseCase,
     required SignUpUseCase signUpUseCase,
     required Enable2FAUseCase enable2FAUseCase,
     required SecureStorage secureStorage,
+    required AuthLocalDataSource authLocalDataSource,
   })  : _authRepository = repository,
         _signInUseCase = signInUseCase,
         _signUpUseCase = signUpUseCase,
         _enable2FAUseCase = enable2FAUseCase,
         _secureStorage = secureStorage,
+        _authLocalDataSource = authLocalDataSource,
         super(const AuthState.initial()) {
     checkAuthStatus();
   }
 
   Future<void> checkAuthStatus() async {
     try {
-      final userResult = await _authRepository.getCurrentUser();
+      // YENİ KULLANIM
+      final userJson = await _authLocalDataSource.getUser();
+      final user = userJson != null ? UserModel.fromJson(userJson) : null;
 
-      userResult.fold(
-        (failure) => state = const AuthState.unauthenticated(),
-        (user) {
-          if (user != null) {
-            state = AuthState.authenticated(user);
-          } else {
-            state = const AuthState.unauthenticated();
-          }
-        },
-      );
+      if (user != null) {
+        state = AuthState.authenticated(user);
+      } else {
+        state = const AuthState.unauthenticated();
+      }
     } catch (e) {
       state = const AuthState.unauthenticated();
     }
@@ -85,7 +86,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
     required String email,
     required String password,
     required String username,
-    required String fullName,
+    required String firstName,
+    required String lastName,
   }) async {
     state = const AuthState.loading();
 
@@ -95,7 +97,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
           email: email,
           password: password,
           username: username,
-          fullName: fullName,
+          firstName: firstName,
+          lastName: lastName,
         ),
       );
 
@@ -128,24 +131,20 @@ class AuthNotifier extends StateNotifier<AuthState> {
   Future<void> signOut() async {
     try {
       final sessionId = await _secureStorage.getSessionId();
-      print('Session ID: $sessionId'); // Debug için
 
       final result = await _authRepository.signOut(sessionId: sessionId ?? '');
 
       result.fold(
         (failure) {
-          print('Logout Error: ${failure.message}'); // Debug için
           state = AuthState.error(failure);
         },
         (_) {
-          print('Logout Success'); // Debug için
           _secureStorage.clearTokens();
           _secureStorage.clearSessionId();
           state = const AuthState.unauthenticated();
         },
       );
     } catch (e) {
-      print('Logout Exception: $e'); // Debug için
       state = AuthState.error(ServerFailure(message: e.toString()));
     }
   }
@@ -179,13 +178,14 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
       if (token != null && sessionId != null) {
         // Token ve session varsa kullanıcı bilgisini al
-        final user = await _authRepository.getCurrentUser();
-        user.fold(
-          (failure) => state = const AuthState.unauthenticated(),
-          (user) => user != null
-              ? state = AuthState.authenticated(user)
-              : state = const AuthState.unauthenticated(),
-        );
+        final userJson = await _authLocalDataSource.getUser();
+        final user = userJson != null ? UserModel.fromJson(userJson) : null;
+
+        if (user != null) {
+          state = AuthState.authenticated(user);
+        } else {
+          state = const AuthState.unauthenticated();
+        }
       } else {
         state = const AuthState.unauthenticated();
       }

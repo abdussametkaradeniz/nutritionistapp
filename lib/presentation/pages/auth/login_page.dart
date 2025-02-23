@@ -3,7 +3,6 @@ import 'package:diet_app/presentation/pages/auth/register_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/auth/auth_notifier.dart';
-import '../../providers/auth/auth_state.dart';
 import '../../../core/utils/extensions/context_extensions.dart';
 import '../../widgets/custom_text_field.dart';
 import '../../widgets/gradient_button.dart';

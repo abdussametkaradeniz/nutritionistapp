@@ -1,3 +1,5 @@
+import 'package:diet_app/core/constants/app_constants.dart';
+
 import 'environment.dart';
 
 class AppConfig {
@@ -10,15 +12,15 @@ class AppConfig {
 
     switch (env) {
       case Environment.dev:
-        apiUrl = 'http://localhost:3000';
+        apiUrl = AppConstants.devUrl;
         enableLogging = true;
         break;
       case Environment.stage:
-        apiUrl = 'https://stage-api.nutritionist.com';
+        apiUrl = AppConstants.stageUrl;
         enableLogging = true;
         break;
       case Environment.prod:
-        apiUrl = 'https://api.nutritionist.com';
+        apiUrl = AppConstants.prodUrl;
         enableLogging = false;
         break;
     }

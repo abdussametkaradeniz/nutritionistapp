@@ -93,6 +93,6 @@ class AuthInterceptor extends Interceptor {
 
   Future<void> _handleLogout() async {
     await _secureStorage.clearTokens();
-    // TODO: Navigate to login screen
+    
   }
 }

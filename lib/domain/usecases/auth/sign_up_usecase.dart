@@ -16,13 +16,15 @@ class SignUpParams {
   final String email;
   final String password;
   final String username;
-  final String? fullName;
+  final String firstName;
+  final String lastName;
 
   const SignUpParams({
     required this.email,
     required this.password,
     required this.username,
-    this.fullName,
+    required this.firstName,
+    required this.lastName,
   });
 }
 
@@ -38,7 +40,8 @@ class SignUpUseCase implements UseCase<Either<Failure, User>, SignUpParams> {
         email: params.email,
         password: params.password,
         username: params.username,
-        fullName: params.fullName,
+        firstName: params.firstName,
+        lastName: params.lastName,
       );
       return result;
     } catch (e) {

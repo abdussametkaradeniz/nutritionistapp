@@ -1,7 +1,6 @@
 import 'package:diet_app/presentation/pages/auth/login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/services/snackbar_service.dart';
 import '../../providers/auth/auth_notifier.dart';
 
 class HomePage extends ConsumerWidget {

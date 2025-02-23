@@ -1,6 +1,8 @@
 class AppConstants {
   // API Endpoints
-  static const String baseUrl = 'https://api.example.com';
+  static const String devUrl = 'http://localhost:3000';
+  static const String stageUrl = 'https://stage-api.nutritionist.com';
+  static const String prodUrl = 'https://api.nutritionist.com';
 
   // Storage Keys
   static const String tokenKey = 'auth_token';
