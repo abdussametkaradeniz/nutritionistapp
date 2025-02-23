@@ -23,7 +23,12 @@ class UserModel extends User {
     required super.createdAt,
     required super.lastUpdateDate,
     super.recordStatus,
+    this.profile,
+    this.preferences,
   });
+
+  final Profile? profile;
+  final Preferences? preferences;
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
@@ -42,12 +47,7 @@ class UserModel extends User {
       emailVerified: json['emailVerified'] ?? false,
       dietitianId: json['dietitianId'],
       roles: (json['roles'] as List?)
-              ?.map((r) => RoleModel(
-                    id: r['id'],
-                    name: r['name'],
-                    permissions: r['permissions'],
-                    lastUpdateDate: DateTime.now(),
-                  ))
+              ?.map((r) => RoleModel.fromJson(r))
               .toList() ??
           [],
       permissions: (json['permissions'] as List?)?.cast<String>() ?? [],
@@ -59,12 +59,91 @@ class UserModel extends User {
           ? DateTime.parse(json['lastUpdateDate'])
           : DateTime.now(),
       recordStatus: json['recordStatus'],
+      profile:
+          json['profile'] != null ? Profile.fromJson(json['profile']) : null,
+      preferences: json['preferences'] != null
+          ? Preferences.fromJson(json['preferences'])
+          : null,
     );
   }
 
   @override
   Map<String, dynamic> toJson() => {
         ...super.toJson(),
-        // Ek model-spesifik alanlar buraya eklenebilir
+        if (profile != null) 'profile': profile!.toJson(),
+        if (preferences != null) 'preferences': preferences!.toJson(),
+      };
+}
+
+class Profile {
+  final String? firstName;
+  final String? secondName;
+  final String? lastName;
+  final int? age;
+  final double? weight;
+  final String? photoUrl;
+
+  Profile({
+    this.firstName,
+    this.secondName,
+    this.lastName,
+    this.age,
+    this.weight,
+    this.photoUrl,
+  });
+
+  factory Profile.fromJson(Map<String, dynamic> json) => Profile(
+        firstName: json['firstName'],
+        secondName: json['secondName'],
+        lastName: json['lastName'],
+        age: json['age'],
+        weight: json['weight']?.toDouble(),
+        photoUrl: json['photoUrl'],
+      );
+
+  Map<String, dynamic> toJson() => {
+        if (firstName != null) 'firstName': firstName,
+        if (secondName != null) 'secondName': secondName,
+        if (lastName != null) 'lastName': lastName,
+        if (age != null) 'age': age,
+        if (weight != null) 'weight': weight,
+        if (photoUrl != null) 'photoUrl': photoUrl,
+      };
+}
+
+class Preferences {
+  final String? language;
+  final String? timezone;
+  final String? theme;
+  final bool? emailNotifications;
+  final bool? pushNotifications;
+  final bool? smsNotifications;
+
+  Preferences({
+    this.language,
+    this.timezone,
+    this.theme,
+    this.emailNotifications,
+    this.pushNotifications,
+    this.smsNotifications,
+  });
+
+  factory Preferences.fromJson(Map<String, dynamic> json) => Preferences(
+        language: json['language'],
+        timezone: json['timezone'],
+        theme: json['theme'],
+        emailNotifications: json['emailNotifications'],
+        pushNotifications: json['pushNotifications'],
+        smsNotifications: json['smsNotifications'],
+      );
+
+  Map<String, dynamic> toJson() => {
+        if (language != null) 'language': language,
+        if (timezone != null) 'timezone': timezone,
+        if (theme != null) 'theme': theme,
+        if (emailNotifications != null)
+          'emailNotifications': emailNotifications,
+        if (pushNotifications != null) 'pushNotifications': pushNotifications,
+        if (smsNotifications != null) 'smsNotifications': smsNotifications,
       };
 }

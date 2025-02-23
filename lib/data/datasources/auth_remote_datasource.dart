@@ -47,8 +47,9 @@ class AuthRemoteDataSource {
     required String email,
     required String password,
     required String username,
-    required String firstName,
-    required String lastName,
+    required String phoneNumber,
+    required DateTime birthDate,
+    required Map<String, dynamic> profile,
   }) async {
     final response = await _apiClient.post<Map<String, dynamic>>(
       path: ApiEndpoints.register,
@@ -56,8 +57,9 @@ class AuthRemoteDataSource {
         'email': email,
         'password': password,
         'username': username,
-        'firstName': firstName,
-        'lastName': lastName,
+        'phoneNumber': phoneNumber,
+        'birthDate': birthDate.toIso8601String(),
+        'profile': profile,
       },
     );
     return response;

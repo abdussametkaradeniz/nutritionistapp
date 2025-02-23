@@ -43,16 +43,18 @@ class AuthRepositoryImpl implements AuthRepository {
     required String email,
     required String password,
     required String username,
-    required String firstName,
-    required String lastName,
+    required String phoneNumber,
+    required DateTime birthDate,
+    required Map<String, dynamic> profile,
   }) async {
     try {
       final response = await _remoteDataSource.signUp(
         email: email,
         password: password,
         username: username,
-        firstName: firstName,
-        lastName: lastName,
+        phoneNumber: phoneNumber,
+        birthDate: birthDate,
+        profile: profile,
       );
 
       if (response['isError'] == false && response['result'] != null) {

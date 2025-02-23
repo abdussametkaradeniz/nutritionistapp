@@ -82,23 +82,28 @@ class AuthNotifier extends StateNotifier<AuthState> {
     );
   }
 
-  Future<void> signUp({
-    required String email,
-    required String password,
-    required String username,
-    required String firstName,
-    required String lastName,
-  }) async {
+  Future<void> signUp(Map<String, Object> registerData) async {
     state = const AuthState.loading();
 
     try {
+      // Ensure 'profile' map and its keys are accessed safely
+      final profileData = registerData['profile'] as Map<String, Object>?;
+      final firstName = profileData?['firstName'] as String?;
+      final lastName = profileData?['lastName'] as String?;
+
       final result = await _signUpUseCase(
         SignUpParams(
-          email: email,
-          password: password,
-          username: username,
-          firstName: firstName,
-          lastName: lastName,
+          email: registerData['email'] as String,
+          password: registerData['password'] as String,
+          username: registerData['username'] as String,
+          phoneNumber: registerData['phoneNumber'] as String,
+          birthDate: registerData['birthDate'] as DateTime,
+          profile: {
+            'firstName': firstName ??
+                '', // Provide a default value or handle null as needed
+            'lastName': lastName ??
+                '', // Provide a default value or handle null as needed
+          },
         ),
       );
 

@@ -14,8 +14,9 @@ abstract class AuthRepository extends BaseRepository {
     required String email,
     required String password,
     required String username,
-    required String firstName,
-    required String lastName,
+    required String phoneNumber,
+    required DateTime birthDate,
+    required Map<String, dynamic> profile,
   });
 
   Future<Either<Failure, void>> signOut({required String sessionId});

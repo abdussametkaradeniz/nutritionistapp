@@ -8,6 +8,7 @@ import '../../../core/utils/extensions/string_extensions.dart';
 import '../../widgets/custom_text_field.dart';
 import '../../widgets/gradient_button.dart';
 import '../../../core/services/snackbar_service.dart';
+import 'package:intl/intl.dart';
 
 class RegisterPage extends ConsumerStatefulWidget {
   const RegisterPage({super.key});
@@ -24,6 +25,8 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
   final _confirmPasswordController = TextEditingController();
   final _firstNameController = TextEditingController();
   final _lastNameController = TextEditingController();
+  final _phoneNumberController = TextEditingController();
+  final _birthDateController = TextEditingController();
   bool _isPasswordVisible = false;
   bool _isConfirmPasswordVisible = false;
 
@@ -35,18 +38,49 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
     _confirmPasswordController.dispose();
     _firstNameController.dispose();
     _lastNameController.dispose();
+    _phoneNumberController.dispose();
+    _birthDateController.dispose();
     super.dispose();
   }
 
   Future<void> _handleRegister() async {
     if (_formKey.currentState?.validate() ?? false) {
-      await ref.read(authNotifierProvider.notifier).signUp(
-            email: _emailController.text.trim(),
-            password: _passwordController.text,
-            username: _usernameController.text.trim(),
-            firstName: _firstNameController.text.trim(),
-            lastName: _lastNameController.text.trim(),
-          );
+      DateTime? birthDate;
+      try {
+        birthDate = DateFormat('dd-MM-yyyy').parse(_birthDateController.text);
+      } catch (e) {
+        SnackbarService.showError(context, 'Doğum tarihi formatı hatalı.');
+        return;
+      }
+
+      final registerData = {
+        'email': _emailController.text.trim(),
+        'username': _usernameController.text.trim(),
+        'password': _passwordController.text,
+        'phoneNumber': _phoneNumberController.text.trim(),
+        'birthDate': birthDate, // DateTime olarak gönderiliyor
+        'profile': {
+          'firstName': _firstNameController.text.trim(),
+          'lastName': _lastNameController.text.trim(),
+        },
+      };
+
+      await ref.read(authNotifierProvider.notifier).signUp(registerData);
+    }
+  }
+
+  Future<void> _selectBirthDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
+      helpText: 'Doğum Tarihi Seçin',
+    );
+    if (picked != null && picked != DateTime.now()) {
+      setState(() {
+        _birthDateController.text = DateFormat('dd-MM-yyyy').format(picked);
+      });
     }
   }
 
@@ -114,7 +148,6 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                   ),
                   const SizedBox(height: 16),
 
-                 
                   // Kullanıcı Adı
                   CustomTextField(
                     controller: _usernameController,
@@ -147,6 +180,40 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                       }
                       return null;
                     },
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Telefon Numarası
+                  CustomTextField(
+                    controller: _phoneNumberController,
+                    hintText: 'Telefon Numarası',
+                    keyboardType: TextInputType.phone,
+                    prefixIcon: Icons.phone_android,
+                    validator: (value) {
+                      if (value?.isEmpty ?? true) {
+                        return 'Telefon numarası gerekli';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Doğum Tarihi
+                  CustomTextField(
+                    controller: _birthDateController,
+                    hintText: 'Doğum Tarihi',
+                    keyboardType: TextInputType.datetime,
+                    prefixIcon: Icons.calendar_today,
+                    validator: (value) {
+                      if (value?.isEmpty ?? true) {
+                        return 'Doğum tarihi gerekli';
+                      }
+                      return null;
+                    },
+                    suffixIcon: IconButton(
+                      icon: const Icon(Icons.calendar_today),
+                      onPressed: () => _selectBirthDate(context),
+                    ),
                   ),
                   const SizedBox(height: 16),
 
