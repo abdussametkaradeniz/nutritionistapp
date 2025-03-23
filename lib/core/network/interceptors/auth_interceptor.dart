@@ -59,7 +59,7 @@ class AuthInterceptor extends Interceptor {
       if (refreshToken == null) return null;
 
       final response = await _dio.post(
-        '/auth/refresh',
+        '/refresh',
         data: {'refresh_token': refreshToken},
       );
 
@@ -93,6 +93,5 @@ class AuthInterceptor extends Interceptor {
 
   Future<void> _handleLogout() async {
     await _secureStorage.clearTokens();
-    
   }
 }

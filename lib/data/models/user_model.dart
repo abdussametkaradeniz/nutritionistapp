@@ -1,4 +1,4 @@
-import 'package:diet_app/data/models/role_model.dart';
+import 'package:diet_app/domain/entities/role.dart';
 
 import '../../domain/entities/user.dart';
 
@@ -17,8 +17,7 @@ class UserModel extends User {
     super.avatarUrl,
     super.emailVerified,
     super.dietitianId,
-    required super.roles,
-    required super.permissions,
+    required super.role,
     super.twoFactorEnabled,
     required super.createdAt,
     required super.lastUpdateDate,
@@ -46,11 +45,10 @@ class UserModel extends User {
       avatarUrl: json['avatarUrl'],
       emailVerified: json['emailVerified'] ?? false,
       dietitianId: json['dietitianId'],
-      roles: (json['roles'] as List?)
-              ?.map((r) => RoleModel.fromJson(r))
-              .toList() ??
-          [],
-      permissions: (json['permissions'] as List?)?.cast<String>() ?? [],
+      role: json['role'] != null
+          ? Role.fromJson(json['role'])
+          : Role(
+              id: 0, name: '', permissions: [], lastUpdateDate: DateTime.now()),
       twoFactorEnabled: json['twoFactorEnabled'] ?? false,
       createdAt: json['createdAt'] != null
           ? DateTime.parse(json['createdAt'])
@@ -70,6 +68,7 @@ class UserModel extends User {
   @override
   Map<String, dynamic> toJson() => {
         ...super.toJson(),
+        'role': role.toJson(), // Burada null kontrolü yapıldı
         if (profile != null) 'profile': profile!.toJson(),
         if (preferences != null) 'preferences': preferences!.toJson(),
       };

@@ -17,6 +17,17 @@ class Permission extends BaseEntity {
     this.recordStatus,
   });
 
+  factory Permission.fromJson(Map<String, dynamic> json) {
+    return Permission(
+      id: json['id'],
+      name: json['name'],
+      description: json['description'],
+      lastUpdateDate: DateTime.parse(json['lastUpdateDate']),
+      lastUpdatingUser: json['lastUpdatingUser'],
+      recordStatus: json['recordStatus'],
+    );
+  }
+
   @override
   Map<String, dynamic> toJson() => {
         'id': id,

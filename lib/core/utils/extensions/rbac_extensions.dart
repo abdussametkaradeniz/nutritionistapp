@@ -2,7 +2,7 @@ import '../../../domain/entities/user.dart';
 
 extension RBACExtensions on User {
   bool hasRole(String roleName) {
-    return roles.any((role) => role.name == roleName);
+    return role.name == roleName;
   }
 
   bool hasAnyRole(List<String> roleNames) {
@@ -11,8 +11,7 @@ extension RBACExtensions on User {
 
   bool hasPermission(String permissionName) {
     return permissions.contains(permissionName) ||
-        roles.any(
-            (role) => role.permissions.any((p) => p.name == permissionName));
+        role.permissions.any((p) => p.name == permissionName);
   }
 
   bool hasAnyPermission(List<String> permissionNames) {

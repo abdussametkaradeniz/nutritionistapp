@@ -1,3 +1,5 @@
+import 'package:diet_app/domain/entities/permission.dart';
+
 import '../base/base_entity.dart';
 import '../entities/role.dart';
 
@@ -15,8 +17,8 @@ class User extends BaseEntity {
   final String? avatarUrl;
   final bool emailVerified;
   final int? dietitianId;
-  final List<Role> roles;
-  final List<String> permissions;
+  final Role role;
+  final List<dynamic> permissions;
   final bool twoFactorEnabled;
   final DateTime createdAt;
   final DateTime lastUpdateDate;
@@ -38,8 +40,8 @@ class User extends BaseEntity {
     this.avatarUrl,
     this.emailVerified = false,
     this.dietitianId,
-    required this.roles,
-    this.permissions = const [],
+    required this.role,
+    this.permissions = const <Permission>[],
     this.twoFactorEnabled = false,
     required this.createdAt,
     required this.lastUpdateDate,
@@ -49,7 +51,7 @@ class User extends BaseEntity {
   });
 
   @override
-  Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson() => <String, dynamic>{
         'id': id,
         'email': email,
         'username': username,
@@ -63,8 +65,8 @@ class User extends BaseEntity {
         'avatarUrl': avatarUrl,
         'emailVerified': emailVerified,
         'dietitianId': dietitianId,
-        'roles': roles.map((role) => role.toJson()).toList(),
-        'permissions': permissions,
+        'role': role.toJson(),
+        'permissions': role.permissions.map((p) => p.name).toList(),
         'twoFactorEnabled': twoFactorEnabled,
         'createdAt': createdAt.toIso8601String(),
         'lastUpdateDate': lastUpdateDate.toIso8601String(),
@@ -86,8 +88,10 @@ class User extends BaseEntity {
   int get hashCode => id.hashCode ^ email.hashCode ^ username.hashCode;
 
   bool hasPermission(String permissionName) {
-    if (permissions.contains(permissionName)) return true;
-    return roles.any((role) => role.permissions
-        .any((permission) => permission.name == permissionName));
+    if (permissions.any((permission) => permission.name == permissionName)) {
+      return true;
+    }
+    return role.permissions
+        .any((permission) => permission.name == permissionName);
   }
 }

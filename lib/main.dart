@@ -1,4 +1,5 @@
 import 'package:diet_app/core/config/environment.dart';
+import 'package:diet_app/presentation/widgets/rbac_bottom_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/config/app_config.dart';
@@ -73,12 +74,16 @@ class MyApp extends ConsumerWidget {
           ),
         ),
       ),
-      home: authState.maybeWhen(
-        initial: () => const SplashPage(),
-        authenticated: (_) => const HomePage(),
-        unauthenticated: () => const LoginPage(),
-        error: (_) => const LoginPage(),
-        orElse: () => const SplashPage(),
+      home: Scaffold(
+        body: authState.maybeWhen(
+          initial: () => const SplashPage(),
+          authenticated: (_) => const HomePage(),
+          unauthenticated: () => const LoginPage(),
+          error: (_) => const LoginPage(),
+          orElse: () => const SplashPage(),
+        ),
+        bottomNavigationBar:
+            const RoleBasedBottomNavigationBar(), // Bottom navigation bar eklendi
       ),
     );
   }

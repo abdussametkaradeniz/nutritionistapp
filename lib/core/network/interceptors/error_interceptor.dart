@@ -3,51 +3,44 @@ import 'package:dio/dio.dart';
 class ErrorInterceptor extends Interceptor {
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
-    final errorMessage = _handleError(err);
+    // API'den gelen hata mesajını çözümleme
+    String errorMessage = 'Bir hata oluştu';
+    if (err.response != null && err.response!.data != null) {
+      final responseData = err.response!.data;
+      if (responseData is Map<String, dynamic> &&
+          responseData.containsKey('message')) {
+        errorMessage = responseData['message'];
+      }
+    }
+
+    // Hata türüne göre özel işlemler
+    switch (err.type) {
+      case DioExceptionType.badResponse:
+        errorMessage = errorMessage;
+        break;
+      case DioExceptionType.connectionTimeout:
+      case DioExceptionType.sendTimeout:
+      case DioExceptionType.receiveTimeout:
+        errorMessage = 'Bağlantı zaman aşımına uğradı';
+        break;
+      case DioExceptionType.cancel:
+        errorMessage = 'İstek iptal edildi';
+        break;
+      case DioExceptionType.unknown:
+        errorMessage = 'Bir ağ hatası oluştu';
+        break;
+      default:
+        break;
+    }
 
     // Orijinal hatayı değiştirip, standart formata çeviriyoruz
     final error = DioException(
       requestOptions: err.requestOptions,
       error: errorMessage,
-      response: err.response,
+      response: null,
       type: err.type,
     );
 
-    return handler.next(error);
-  }
-
-  String _handleError(DioException error) {
-    switch (error.type) {
-      case DioExceptionType.connectionTimeout:
-      case DioExceptionType.receiveTimeout:
-      case DioExceptionType.sendTimeout:
-        return 'TimeoutException';
-
-      case DioExceptionType.connectionError:
-        return 'NetworkException';
-
-      case DioExceptionType.badResponse:
-        return _handleResponseError(error.response?.statusCode);
-
-      default:
-        return 'UnknownException';
-    }
-  }
-
-  String _handleResponseError(int? statusCode) {
-    switch (statusCode) {
-      case 400:
-        return 'BadRequestException';
-      case 401:
-        return 'UnauthorizedException';
-      case 403:
-        return 'ForbiddenException';
-      case 404:
-        return 'NotFoundException';
-      case 500:
-        return 'ServerException';
-      default:
-        return 'UnknownException';
-    }
+    handler.next(error);
   }
 }

@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 
 class SnackbarService {
   static void showError(BuildContext context, String message) {
+    if (message.contains('Error: ')) {
+      message = message.split('Error: ').last;
+    }
+
     final theme = Theme.of(context);
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -24,14 +28,7 @@ class SnackbarService {
           borderRadius: BorderRadius.circular(8),
         ),
         margin: const EdgeInsets.all(8),
-        duration: const Duration(seconds: 4),
-        action: SnackBarAction(
-          label: 'TAMAM',
-          textColor: theme.colorScheme.onError,
-          onPressed: () {
-            ScaffoldMessenger.of(context).hideCurrentSnackBar();
-          },
-        ),
+        duration: const Duration(seconds: 10),
       ),
     );
   }
@@ -60,7 +57,7 @@ class SnackbarService {
           borderRadius: BorderRadius.circular(8),
         ),
         margin: const EdgeInsets.all(8),
-        duration: const Duration(seconds: 2),
+        duration: const Duration(seconds: 5),
       ),
     );
   }

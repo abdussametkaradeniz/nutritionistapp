@@ -4,9 +4,9 @@ import '../base/base_entity.dart';
 enum UserRole { admin, dietitian, premiumUser, basicUser }
 
 class Role extends BaseEntity {
-  final String id;
+  final int id;
   final String name;
-  final List<Permission> permissions;
+  final List<dynamic> permissions;
   final DateTime lastUpdateDate;
   final String? lastUpdatingUser;
   final String? recordStatus;
@@ -19,6 +19,17 @@ class Role extends BaseEntity {
     this.lastUpdatingUser,
     this.recordStatus,
   });
+
+  factory Role.fromJson(Map<String, dynamic> json) {
+    return Role(
+      id: json['id'],
+      name: json['name'],
+      permissions: json['permissions'],
+      lastUpdateDate: DateTime.parse(json['lastUpdateDate']),
+      lastUpdatingUser: json['lastUpdatingUser'],
+      recordStatus: json['recordStatus'],
+    );
+  }
 
   @override
   Map<String, dynamic> toJson() => {
