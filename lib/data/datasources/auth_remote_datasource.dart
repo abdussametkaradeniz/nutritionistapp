@@ -22,7 +22,7 @@ class AuthRemoteDataSource {
     final response = await _apiClient.post<Map<String, dynamic>>(
       path: ApiEndpoints.login,
       data: {
-        'email': email,
+        'identifier': email,
         'password': password,
       },
     );
