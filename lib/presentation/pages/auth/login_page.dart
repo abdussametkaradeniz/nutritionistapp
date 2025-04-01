@@ -19,24 +19,52 @@ class LoginPage extends ConsumerStatefulWidget {
 
 class _LoginPageState extends ConsumerState<LoginPage> {
   final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
+  final _identifierController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isPasswordVisible = false;
 
   @override
   void dispose() {
-    _emailController.dispose();
+    _identifierController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
 
   Future<void> _handleLogin() async {
     if (_formKey.currentState?.validate() ?? false) {
+      final identifier = _identifierController.text.trim();
+
       await ref.read(authNotifierProvider.notifier).signIn(
-            _emailController.text.trim(),
+            identifier,
             _passwordController.text,
           );
     }
+  }
+
+  String? _validateIdentifier(String? value) {
+    if (value?.isEmpty ?? true) {
+      return 'Bu alan gerekli';
+    }
+
+    if (value!.contains('@')) {
+      if (!value.isValidEmail) {
+        return 'Geçerli bir e-posta giriniz';
+      }
+      return null;
+    }
+
+    if (value.startsWith('+') || RegExp(r'^[0-9]+$').hasMatch(value)) {
+      if (value.length < 10) {
+        return 'Geçerli bir telefon numarası giriniz';
+      }
+      return null;
+    }
+
+    if (value.length < 3) {
+      return 'Geçerli bir kullanıcı adı giriniz';
+    }
+
+    return null;
   }
 
   void _navigateToForgotPassword() {
@@ -114,19 +142,11 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
                   // Email alanı
                   CustomTextField(
-                    controller: _emailController,
-                    hintText: 'E-posta',
-                    keyboardType: TextInputType.emailAddress,
-                    prefixIcon: Icons.email_outlined,
-                    validator: (value) {
-                      if (value?.isEmpty ?? true) {
-                        return 'E-posta gerekli';
-                      }
-                      if (!value!.isValidEmail) {
-                        return 'Geçerli bir e-posta giriniz';
-                      }
-                      return null;
-                    },
+                    controller: _identifierController,
+                    hintText: 'E-posta / Kullanıcı Adı / Telefon',
+                    keyboardType: TextInputType.text,
+                    prefixIcon: Icons.person_outline,
+                    validator: _validateIdentifier,
                   ),
                   const SizedBox(height: 16),
 

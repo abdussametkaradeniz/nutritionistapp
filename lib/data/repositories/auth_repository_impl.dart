@@ -44,7 +44,6 @@ class AuthRepositoryImpl implements AuthRepository {
     required String password,
     required String username,
     required String phoneNumber,
-    required DateTime birthDate,
     required Map<String, dynamic> profile,
   }) async {
     try {
@@ -53,7 +52,6 @@ class AuthRepositoryImpl implements AuthRepository {
         password: password,
         username: username,
         phoneNumber: phoneNumber,
-        birthDate: birthDate,
         profile: profile,
       );
 
@@ -258,7 +256,6 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<Failure, User>> updateProfile({
     String? fullName,
     String? phoneNumber,
-    DateTime? birthDate,
     String? gender,
     double? height,
     double? weight,
@@ -268,7 +265,6 @@ class AuthRepositoryImpl implements AuthRepository {
       final userJson = await _remoteDataSource.updateProfile(
         fullName: fullName,
         phoneNumber: phoneNumber,
-        birthDate: birthDate,
         gender: gender,
         height: height,
         weight: weight,

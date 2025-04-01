@@ -82,27 +82,25 @@ class AuthNotifier extends StateNotifier<AuthState> {
     );
   }
 
-  Future<void> signUp(Map<String, Object> registerData) async {
+  Future<void> signUp(Map<String, dynamic> registerData) async {
     state = const AuthState.loading();
 
     try {
       // Ensure 'profile' map and its keys are accessed safely
-      final profileData = registerData['profile'] as Map<String, Object>?;
+      final profileData = registerData['profile'] as Map<String, dynamic>?;
       final firstName = profileData?['firstName'] as String?;
       final lastName = profileData?['lastName'] as String?;
-
+      final age = profileData?['age'] as int?;
       final result = await _signUpUseCase(
         SignUpParams(
           email: registerData['email'] as String,
           password: registerData['password'] as String,
           username: registerData['username'] as String,
           phoneNumber: registerData['phoneNumber'] as String,
-          birthDate: registerData['birthDate'] as DateTime,
           profile: {
-            'firstName': firstName ??
-                '', // Provide a default value or handle null as needed
-            'lastName': lastName ??
-                '', // Provide a default value or handle null as needed
+            'firstName': firstName ?? '',
+            'lastName': lastName ?? '',
+            'age': age ?? 0,
           },
         ),
       );
@@ -126,6 +124,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
           ServerFailure(message: 'Bir hata oluştu, lütfen tekrar deneyin'),
         );
       } else {
+        print(e.toString());
         state = const AuthState.error(
           ServerFailure(message: 'Bir hata oluştu, lütfen tekrar deneyin'),
         );

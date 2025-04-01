@@ -17,15 +17,13 @@ class SignUpParams {
   final String password;
   final String username;
   final String phoneNumber;
-  final DateTime birthDate;
-  final Map<String, String> profile;
+  final Map<String, dynamic> profile;
 
   SignUpParams({
     required this.email,
     required this.password,
     required this.username,
     required this.phoneNumber,
-    required this.birthDate,
     required this.profile,
   });
 }
@@ -43,7 +41,6 @@ class SignUpUseCase implements UseCase<Either<Failure, User>, SignUpParams> {
         password: params.password,
         username: params.username,
         phoneNumber: params.phoneNumber,
-        birthDate: params.birthDate,
         profile: params.profile,
       );
       return result;

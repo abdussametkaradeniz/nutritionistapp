@@ -27,20 +27,16 @@ class AuthRemoteDataSource {
       },
     );
 
-    if (response['sessionId'] != null) {
-      final sessionId = response['sessionId']['id'];
-      await _secureStorage.setSessionId(sessionId);
-    }
+    // Response'dan result ve user'ı al
+    final result = response['result'] as Map<String, dynamic>;
+    final user = result['user'] as Map<String, dynamic>;
+    final token = result['token'] as String;
 
-    if (response['accessToken'] != null) {
-      await _secureStorage.setToken(response['accessToken']);
-    }
+    // Token'ı kaydet
+    await _secureStorage.setToken(token);
 
-    if (response['refreshToken'] != null) {
-      await _secureStorage.setRefreshToken(response['refreshToken']);
-    }
-
-    return response['user'];
+    // User objesini dön
+    return user;
   }
 
   Future<Map<String, dynamic>> signUp({
@@ -48,7 +44,6 @@ class AuthRemoteDataSource {
     required String password,
     required String username,
     required String phoneNumber,
-    required DateTime birthDate,
     required Map<String, dynamic> profile,
   }) async {
     final response = await _apiClient.post<Map<String, dynamic>>(
@@ -58,7 +53,6 @@ class AuthRemoteDataSource {
         'password': password,
         'username': username,
         'phoneNumber': phoneNumber,
-        'birthDate': birthDate.toIso8601String(),
         'profile': profile,
       },
     );
@@ -180,7 +174,6 @@ class AuthRemoteDataSource {
   Future<Map<String, dynamic>> updateProfile({
     String? fullName,
     String? phoneNumber,
-    DateTime? birthDate,
     String? gender,
     double? height,
     double? weight,
@@ -191,7 +184,6 @@ class AuthRemoteDataSource {
       data: {
         if (fullName != null) 'fullName': fullName,
         if (phoneNumber != null) 'phoneNumber': phoneNumber,
-        if (birthDate != null) 'birthDate': birthDate.toIso8601String(),
         if (gender != null) 'gender': gender,
         if (height != null) 'height': height,
         if (weight != null) 'weight': weight,

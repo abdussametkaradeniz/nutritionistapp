@@ -15,7 +15,6 @@ abstract class AuthRepository extends BaseRepository {
     required String password,
     required String username,
     required String phoneNumber,
-    required DateTime birthDate,
     required Map<String, dynamic> profile,
   });
 
@@ -53,7 +52,6 @@ abstract class AuthRepository extends BaseRepository {
   Future<Either<Failure, User>> updateProfile({
     String? fullName,
     String? phoneNumber,
-    DateTime? birthDate,
     String? gender,
     double? height,
     double? weight,

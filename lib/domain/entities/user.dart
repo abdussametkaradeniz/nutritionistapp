@@ -9,8 +9,8 @@ class User extends BaseEntity {
   final String username;
   final String? phoneNumber;
   final String? fullName;
-  final DateTime? birthDate;
   final String? gender;
+  final int? age;
   final double? height;
   final double? weight;
   final String? address;
@@ -32,7 +32,7 @@ class User extends BaseEntity {
     required this.username,
     this.phoneNumber,
     this.fullName,
-    this.birthDate,
+    this.age,
     this.gender,
     this.height,
     this.weight,
@@ -57,7 +57,7 @@ class User extends BaseEntity {
         'username': username,
         'phoneNumber': phoneNumber,
         'fullName': fullName,
-        'birthDate': birthDate?.toIso8601String(),
+        'age': age,
         'gender': gender,
         'height': height,
         'weight': weight,

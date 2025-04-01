@@ -9,7 +9,6 @@ class UserModel extends User {
     required super.username,
     super.fullName,
     super.phoneNumber,
-    super.birthDate,
     super.gender,
     super.height,
     super.weight,
@@ -36,8 +35,6 @@ class UserModel extends User {
       username: json['username'],
       fullName: json['fullName'],
       phoneNumber: json['phoneNumber'],
-      birthDate:
-          json['birthDate'] != null ? DateTime.parse(json['birthDate']) : null,
       gender: json['gender'],
       height: json['height']?.toDouble(),
       weight: json['weight']?.toDouble(),

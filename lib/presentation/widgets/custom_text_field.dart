@@ -8,9 +8,11 @@ class CustomTextField extends StatelessWidget {
   final bool obscureText;
   final TextInputType? keyboardType;
   final String? Function(String?)? validator;
+  final bool readOnly;
+  final VoidCallback? onTapCallback;
 
   const CustomTextField({
-    super.key,
+    Key? key,
     required this.controller,
     required this.hintText,
     this.prefixIcon,
@@ -18,15 +20,14 @@ class CustomTextField extends StatelessWidget {
     this.obscureText = false,
     this.keyboardType,
     this.validator,
-  });
+    this.readOnly = false,
+    this.onTapCallback,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
       controller: controller,
-      obscureText: obscureText,
-      keyboardType: keyboardType,
-      validator: validator,
       decoration: InputDecoration(
         hintText: hintText,
         prefixIcon: prefixIcon != null ? Icon(prefixIcon) : null,
@@ -45,6 +46,11 @@ class CustomTextField extends StatelessWidget {
           vertical: 16,
         ),
       ),
+      obscureText: obscureText,
+      keyboardType: keyboardType,
+      validator: validator,
+      readOnly: readOnly,
+      onTap: onTapCallback,
     );
   }
 }

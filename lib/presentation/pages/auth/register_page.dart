@@ -9,6 +9,7 @@ import '../../widgets/custom_text_field.dart';
 import '../../widgets/gradient_button.dart';
 import '../../../core/services/snackbar_service.dart';
 import 'package:intl/intl.dart';
+import 'package:numberpicker/numberpicker.dart';
 
 class RegisterPage extends ConsumerStatefulWidget {
   const RegisterPage({super.key});
@@ -26,7 +27,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
   final _firstNameController = TextEditingController();
   final _lastNameController = TextEditingController();
   final _phoneNumberController = TextEditingController();
-  final _birthDateController = TextEditingController();
+  final _ageController = TextEditingController();
   bool _isPasswordVisible = false;
   bool _isConfirmPasswordVisible = false;
 
@@ -39,29 +40,21 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
     _firstNameController.dispose();
     _lastNameController.dispose();
     _phoneNumberController.dispose();
-    _birthDateController.dispose();
+    _ageController.dispose();
     super.dispose();
   }
 
   Future<void> _handleRegister() async {
     if (_formKey.currentState?.validate() ?? false) {
-      DateTime? birthDate;
-      try {
-        birthDate = DateFormat('dd-MM-yyyy').parse(_birthDateController.text);
-      } catch (e) {
-        SnackbarService.showError(context, 'Doğum tarihi formatı hatalı.');
-        return;
-      }
-
       final registerData = {
         'email': _emailController.text.trim(),
         'username': _usernameController.text.trim(),
         'password': _passwordController.text,
         'phoneNumber': _phoneNumberController.text.trim(),
-        'birthDate': birthDate, // DateTime olarak gönderiliyor
         'profile': {
           'firstName': _firstNameController.text.trim(),
           'lastName': _lastNameController.text.trim(),
+          'age': int.tryParse(_ageController.text.trim()),
         },
       };
 
@@ -69,19 +62,45 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
     }
   }
 
-  Future<void> _selectBirthDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
+  void _showAgePickerDialog() {
+    int selectedAge = int.tryParse(_ageController.text) ?? 18;
+    showDialog(
       context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(1900),
-      lastDate: DateTime.now(),
-      helpText: 'Doğum Tarihi Seçin',
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Yaş Seçin'),
+          content: StatefulBuilder(
+            builder: (context, setState) {
+              return NumberPicker(
+                value: selectedAge,
+                minValue: 12,
+                maxValue: 100,
+                step: 1,
+                haptics: true,
+                onChanged: (value) {
+                  setState(() {
+                    selectedAge = value;
+                  });
+                },
+              );
+            },
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('İptal'),
+            ),
+            TextButton(
+              onPressed: () {
+                _ageController.text = selectedAge.toString();
+                Navigator.pop(context);
+              },
+              child: const Text('Tamam'),
+            ),
+          ],
+        );
+      },
     );
-    if (picked != null && picked != DateTime.now()) {
-      setState(() {
-        _birthDateController.text = DateFormat('dd-MM-yyyy').format(picked);
-      });
-    }
   }
 
   @override
@@ -120,10 +139,10 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // İsim
+                  // İsim (Required)
                   CustomTextField(
                     controller: _firstNameController,
-                    hintText: 'İsim',
+                    hintText: 'İsim *',
                     prefixIcon: Icons.person_outline,
                     validator: (value) {
                       if (value?.isEmpty ?? true) {
@@ -134,10 +153,10 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                   ),
                   const SizedBox(height: 16),
 
-                  // Soyisim
+                  // Soyisim (Required)
                   CustomTextField(
                     controller: _lastNameController,
-                    hintText: 'Soyisim',
+                    hintText: 'Soyisim *',
                     prefixIcon: Icons.person_outline,
                     validator: (value) {
                       if (value?.isEmpty ?? true) {
@@ -148,79 +167,57 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                   ),
                   const SizedBox(height: 16),
 
-                  // Kullanıcı Adı
+                  // Kullanıcı Adı (Optional)
                   CustomTextField(
                     controller: _usernameController,
                     hintText: 'Kullanıcı Adı',
                     prefixIcon: Icons.alternate_email,
-                    validator: (value) {
-                      if (value?.isEmpty ?? true) {
-                        return 'Kullanıcı adı gerekli';
-                      }
-                      if (value!.length < 3) {
-                        return 'Kullanıcı adı en az 3 karakter olmalı';
-                      }
-                      return null;
-                    },
                   ),
                   const SizedBox(height: 16),
 
-                  // Email
+                  // Email (Optional)
                   CustomTextField(
                     controller: _emailController,
                     hintText: 'E-posta',
                     keyboardType: TextInputType.emailAddress,
                     prefixIcon: Icons.email_outlined,
                     validator: (value) {
-                      if (value?.isEmpty ?? true) {
-                        return 'E-posta gerekli';
-                      }
-                      if (!value!.isValidEmail) {
-                        return 'Geçerli bir e-posta giriniz';
+                      if (value?.isNotEmpty ?? false) {
+                        if (!value!.isValidEmail) {
+                          return 'Geçerli bir e-posta giriniz';
+                        }
                       }
                       return null;
                     },
                   ),
                   const SizedBox(height: 16),
+                  CustomTextField(
+                    controller: _ageController,
+                    hintText: 'Yaş',
+                    keyboardType: TextInputType.number,
+                    prefixIcon: Icons.numbers,
+                    readOnly: true,
+                    suffixIcon: IconButton(
+                      icon: const Icon(Icons.arrow_drop_down),
+                      onPressed: _showAgePickerDialog,
+                    ),
+                    onTapCallback: _showAgePickerDialog,
+                  ),
+                  const SizedBox(height: 16),
 
-                  // Telefon Numarası
+                  // Telefon Numarası (Optional)
                   CustomTextField(
                     controller: _phoneNumberController,
                     hintText: 'Telefon Numarası',
                     keyboardType: TextInputType.phone,
                     prefixIcon: Icons.phone_android,
-                    validator: (value) {
-                      if (value?.isEmpty ?? true) {
-                        return 'Telefon numarası gerekli';
-                      }
-                      return null;
-                    },
                   ),
                   const SizedBox(height: 16),
 
-                  // Doğum Tarihi
-                  CustomTextField(
-                    controller: _birthDateController,
-                    hintText: 'Doğum Tarihi',
-                    keyboardType: TextInputType.datetime,
-                    prefixIcon: Icons.calendar_today,
-                    validator: (value) {
-                      if (value?.isEmpty ?? true) {
-                        return 'Doğum tarihi gerekli';
-                      }
-                      return null;
-                    },
-                    suffixIcon: IconButton(
-                      icon: const Icon(Icons.calendar_today),
-                      onPressed: () => _selectBirthDate(context),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Şifre
+                  // Şifre (Required)
                   CustomTextField(
                     controller: _passwordController,
-                    hintText: 'Şifre',
+                    hintText: 'Şifre *',
                     obscureText: !_isPasswordVisible,
                     prefixIcon: Icons.lock_outline,
                     suffixIcon: IconButton(
